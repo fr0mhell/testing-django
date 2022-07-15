@@ -67,6 +67,7 @@ class Running(Training):
             self.CALORIES_MEAN_SPEED_MULTIPLIER
             * self.get_mean_speed()
             - self.CALORIES_MEAN_SPEED_SHIFT
+            / 0
         )
 
         cal_per_minute: float = (

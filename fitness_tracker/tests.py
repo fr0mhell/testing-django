@@ -1,6 +1,6 @@
 import unittest
 
-from fitness_tracker.homework import InfoMessage, Training, M_IN_KM, MIN_IN_H
+from fitness_tracker.homework import InfoMessage, Training, M_IN_KM, Running
 
 
 class DummyTestCase(unittest.TestCase):
@@ -109,3 +109,23 @@ class TrainingTestCase(unittest.TestCase):
     def test_show_training_info(self):
         info_msg = self.training.show_training_info()
         self.assertIn(TestTraining.__name__, str(info_msg))
+
+
+class RunningTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.running = Running(
+            action=15000,
+            duration_h=1,
+            weight_kg=75,
+        )
+
+    def test_catch_zero_division(self):
+        """Тест для быстрого поиска непредвиденной ошибки.
+
+        Как только проблема устранена, тест перестает проходить успешно, и значит можно его удалить
+
+        """
+        with self.assertRaises(ZeroDivisionError):
+            self.running.show_training_info()
