@@ -3,7 +3,7 @@ import datetime as dt
 
 from django.core.management.base import BaseCommand
 
-from ...models import Profile, Running, User
+from ...models import Profile, Running
 from django.contrib.auth.models import User
 from django.utils import timezone as tz
 
