@@ -62,7 +62,7 @@ class Training(models.Model):
 
     @property
     def calories_spent(self) -> float:
-        return
+        raise NotImplementedError
 
     def __str__(self):
         return f'{self.__class__.__name__}'

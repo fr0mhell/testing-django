@@ -12,6 +12,8 @@ class ProfileAdmin(admin.ModelAdmin):
 class RunningAdmin(admin.ModelAdmin):
     list_display = (
         'profile',
+        'finished_at',
+        'started_at',
         'duration_hours',
         'distance_km',
         'mean_speed',
