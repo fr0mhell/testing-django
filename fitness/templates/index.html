@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if show_all %}
+    Все тренировки
+  {% else %}
+    Мои тренировки
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          {% if show_all %}
+            <th scope="col">Profile</th>
+          {% endif %}
+          <th scope="col">Finished At</th>
+          <th scope="col">Started At</th>
+          <th scope="col">Duration (h)</th>
+          <th scope="col">Distance (km)</th>
+          <th scope="col">Mean Speed (km/h)</th>
+          <th scope="col">Calories Spent</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for training in trainings %}
+          <tr>
+            {% if show_all %}
+              <th scope="row"> {{ training.profile }}</th>
+            {% endif %}
+            <td>{{ training.finished_at }}</td>
+            <td>{{ training.started_at }}</td>
+            <td>{{ training.duration_hours|floatformat:3 }}</td>
+            <td>{{ training.distance_km|floatformat:3 }}</td>
+            <td>{{ training.mean_speed|floatformat:3 }}</td>
+            <td>{{ training.calories_spent|floatformat:3 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+{% endblock %}
