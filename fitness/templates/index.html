@@ -10,6 +10,12 @@
 
 {% block content %}
   <div class="row justify-content-center">
+    <div class="container py-5">
+      <div class="row">
+        <a class="btn btn-primary" href="{% url 'trainings:create-training' %}" role="button">Добавить Тренировку</a>
+      </div>
+    </div>
+
     <table class="table table-striped">
       <thead class="thead-dark">
         <tr>
@@ -22,6 +28,9 @@
           <th scope="col">Distance (km)</th>
           <th scope="col">Mean Speed (km/h)</th>
           <th scope="col">Calories Spent</th>
+          {% if not show_all %}
+            <th scope="col"></th>
+          {% endif %}
         </tr>
       </thead>
 
@@ -37,6 +46,11 @@
             <td>{{ training.distance_km|floatformat:3 }}</td>
             <td>{{ training.mean_speed|floatformat:3 }}</td>
             <td>{{ training.calories_spent|floatformat:3 }}</td>
+            {% if not show_all %}
+              <td>
+                <a class="btn btn-primary" href="{% url 'trainings:edit-training' training.id %}" role="button">Редактировать</a>
+              </td>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>

@@ -1,18 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Новый Профиль{% endblock %}
+
+{% block title %}
+  {% if is_edit %}Редактировать Профиль {% else %} Создать Профиль {% endif %}
+{% endblock %}
+
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-md-8 p-5">
       <div class="card">
         <div class="card-header">
-          Новый Профиль
+          {% if is_edit %}Редактировать Профиль {% else %} Создать Профиль {% endif %}
         </div>
         <div class="card-body">
-          <form method="post" action="{% url 'trainings:create-profile' %}">
+          <form action="{% if is_edit %} {% url 'trainings:edit-profile' profile_id %} {% else %} {% url 'trainings:create-profile' %}{% endif %}"method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">
-              Создать
+              {% if is_edit %} Сохранить {% else %} Создать {% endif %}
             </button>
           </form>
         </div>

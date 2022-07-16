@@ -1,16 +1,22 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseNotFound
 
-from .models import Running
-from .forms import CreateProfileForm
+from .models import Running, Profile
+from .forms import ProfileForm, RunningForm
 
 
 @login_required
 def create_profile(request):
-    form = CreateProfileForm(request.POST or None)
+    if profile := request.user.profile:
+        return redirect('trainings:edit-profile', profile_id=profile.id)
+
+    form = ProfileForm(request.POST or None)
 
     if request.method != 'POST' or not form.is_valid():
-        return render(request, 'create_profile.html', {'form': form})
+        context = {'form': form, 'is_edit': False}
+        template = 'create_profile.html'
+        return render(request, template, context)
 
     profile = form.save(commit=False)
     profile.user = request.user
@@ -18,21 +24,87 @@ def create_profile(request):
     return redirect('trainings:my-trainings')
 
 
-def index(request):
+@login_required
+def edit_profile(request, profile_id):
+    profile = get_object_or_404(Profile, id=profile_id)
+
+    if profile.user_id != request.user.id:
+        return HttpResponseNotFound('Profile not found')
+
+    form = ProfileForm(request.POST or None, instance=profile)
+
+    if form.is_valid():
+        form.save()
+        return redirect('trainings:my-trainings')
+
+    context = {
+        'form': form,
+        'profile_id': profile.id,
+        'is_edit': True,
+    }
+    template = 'create_profile.html'
+    return render(request, template, context)
+
+
+def _show_training_table(request, show_all):
+    """Not a view function!"""
     if not request.user.is_authenticated:
         return redirect('login')
     if not (profile := request.user.profile):
         return redirect('trainings:create-profile')
 
     trainings = Running.objects.all()
-    return render(request, 'index.html', context={'trainings': trainings, 'show_all': True})
+    if not show_all:
+        trainings = trainings.filter(profile=profile)
+    return render(request, 'index.html', context={'trainings': trainings, 'show_all': show_all})
+
+
+def index(request):
+    return _show_training_table(request, show_all=True)
 
 
 def my_trainings(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
+    return _show_training_table(request, show_all=False)
+
+
+@login_required
+def add_training(request):
     if not (profile := request.user.profile):
         return redirect('trainings:create-profile')
 
-    trainings = Running.objects.filter(profile=profile)
-    return render(request, 'index.html', context={'trainings': trainings, 'show_all': False})
+    form = RunningForm(request.POST or None)
+
+    if request.method != 'POST' or not form.is_valid():
+        context = {'form': form, 'is_edit': False}
+        template = 'create_training.html'
+        return render(request, template, context)
+
+    training = form.save(commit=False)
+    training.profile = profile
+    training.save()
+    return redirect('trainings:my-trainings')
+
+
+@login_required
+def edit_training(request, training_id):
+    if not request.user.profile:
+        return redirect('trainings:create-profile')
+
+    training = get_object_or_404(Running, id=training_id)
+
+    if training.profile.user_id != request.user.id:
+        return HttpResponseNotFound('Training not found')
+
+    form = RunningForm(request.POST or None, instance=training)
+
+    if form.is_valid():
+        form.save()
+        return redirect('trainings:my-trainings')
+
+    context = {
+        'form': form,
+        'training_id': training.id,
+        'is_edit': True,
+    }
+    template = 'create_training.html'
+    return render(request, template, context)
