@@ -50,10 +50,13 @@ def _show_training_table(request, show_all):
     """Not a view function!"""
     if not request.user.is_authenticated:
         return redirect('login')
-    if not (profile := request.user.profile):
+    profile_qs = Profile.objects.filter(user=request.user)
+
+    if not profile_qs.exists():
         return redirect('trainings:create-profile')
 
     trainings = Running.objects.all()
+    profile = profile_qs.first()
     if not show_all:
         trainings = trainings.filter(profile=profile)
     return render(request, 'index.html', context={'trainings': trainings, 'show_all': show_all})

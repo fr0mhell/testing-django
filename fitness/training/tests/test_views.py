@@ -8,6 +8,25 @@ from ..models import Running, Profile
 from django.contrib.auth.models import User
 
 
+class CreateProfileTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        ...
+
+    def test_unauth_redirected_to_login(self):
+        ...
+
+    def test_profile_created(self):
+        ...
+
+    def test_redirect_to_edit_if_has_profile(self):
+        ...
+
+    def test_profile_with_errors_not_created(self):
+        ...
+
+
 class IndexViewTestCase(TestCase):
 
     @classmethod
@@ -68,6 +87,7 @@ class IndexViewTestCase(TestCase):
     def test_index_shows_all_trainings(self):
         index_url, template = self.urls_to_test[0]
         response = self.client_1.get(index_url)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, template)
 
         received_trainings = response.context['trainings']
