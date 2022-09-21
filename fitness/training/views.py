@@ -2,8 +2,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound
 
-from .models import Running, Profile
-from .forms import ProfileForm, RunningForm
+from .models import Training, Profile
+from .forms import ProfileForm, TrainingForm
 
 
 @login_required
@@ -11,7 +11,9 @@ def create_profile(request):
     if profile := request.user.profile:
         return redirect('trainings:edit-profile', profile_id=profile.id)
 
-    form = ProfileForm(request.POST or None)
+    form = ProfileForm(
+        data=request.POST or None,
+    )
 
     if request.method != 'POST' or not form.is_valid():
         context = {'form': form, 'is_edit': False}
@@ -31,7 +33,10 @@ def edit_profile(request, profile_id):
     if profile.user_id != request.user.id:
         return HttpResponseNotFound('Profile not found')
 
-    form = ProfileForm(request.POST or None, instance=profile)
+    form = ProfileForm(
+        data=request.POST or None,
+        instance=profile,
+    )
 
     if form.is_valid():
         form.save()
@@ -55,7 +60,7 @@ def _show_training_table(request, show_all):
     if not profile_qs.exists():
         return redirect('trainings:create-profile')
 
-    trainings = Running.objects.all()
+    trainings = Training.objects.all()
     profile = profile_qs.first()
     if not show_all:
         trainings = trainings.filter(profile=profile)
@@ -75,7 +80,7 @@ def add_training(request):
     if not (profile := request.user.profile):
         return redirect('trainings:create-profile')
 
-    form = RunningForm(request.POST or None)
+    form = TrainingForm(request.POST or None)
 
     if request.method != 'POST' or not form.is_valid():
         context = {'form': form, 'is_edit': False}
@@ -93,12 +98,12 @@ def edit_training(request, training_id):
     if not request.user.profile:
         return redirect('trainings:create-profile')
 
-    training = get_object_or_404(Running, id=training_id)
+    training = get_object_or_404(Training, id=training_id)
 
     if training.profile.user_id != request.user.id:
         return HttpResponseNotFound('Training not found')
 
-    form = RunningForm(request.POST or None, instance=training)
+    form = TrainingForm(request.POST or None, instance=training)
 
     if form.is_valid():
         form.save()

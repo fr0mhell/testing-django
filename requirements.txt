@@ -1,1 +1,4 @@
-django<4
+django==3.2.15
+django-extensions==3.2.1
+jupyter==1.0.0
+django-debug-toolbar==3.6.0

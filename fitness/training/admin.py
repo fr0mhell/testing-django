@@ -8,10 +8,16 @@ class ProfileAdmin(admin.ModelAdmin):
     ...
 
 
-@admin.register(models.Running)
-class RunningAdmin(admin.ModelAdmin):
+@admin.register(models.TrainingType)
+class TrainingTypeAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(models.Training)
+class TrainingAdmin(admin.ModelAdmin):
     list_display = (
         'profile',
+        'training_type',
         'finished_at',
         'started_at',
         'duration_hours',

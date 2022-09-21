@@ -22,7 +22,7 @@ class RunningModelTestCase(TestCase):
             finished_at=dt.datetime(2022, 1, 1, 1, 30),
         )
         cls.duration_hours = 1.5
-        cls.distance_km = cls.training_1.action * cls.training_1.LEN_STEP_METERS / M_IN_KM
+        cls.distance_km = cls.training_1.training_units * cls.training_1.LEN_STEP_METERS / M_IN_KM
         cls.mean_speed = cls.distance_km / cls.duration_hours
 
     def test_training_properties(self):

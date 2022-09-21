@@ -7,7 +7,7 @@ from ...models import Profile, Running
 from django.contrib.auth.models import User
 from django.utils import timezone as tz
 
-USERS = 5
+USERS = 20
 USER_TRAININGS = [20, 40, 60, 80, 100]
 
 
@@ -29,7 +29,7 @@ class Command(BaseCommand):
         Profile.objects.bulk_create([
             Profile(
                 user=user,
-                weight_kg=random.uniform(50, 100),
+                weight_kg=random.uniform(60, 100),
             ) for user in User.objects.exclude(username='root')
         ])
 

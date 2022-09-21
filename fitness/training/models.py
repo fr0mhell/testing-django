@@ -5,8 +5,13 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-M_IN_KM: int = 1000
+M_IN_KM: int = 1_000
 MIN_IN_H: int = 60
+SEC_IN_HOUR = 3_600
+
+
+class ProfileQuerySet(models.QuerySet):
+    ...
 
 
 class Profile(models.Model):
@@ -22,20 +27,70 @@ class Profile(models.Model):
         verbose_name=_('Weight (kilos)'),
     )
 
+    height_m = models.FloatField(
+        validators=[
+            MinValueValidator(0.1),
+        ],
+        verbose_name=_('Height (meters)'),
+    )
+
+    objects = ProfileQuerySet.as_manager()
+
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} ({self.user.email})'
 
 
+class TrainingTypeQuerySet(models.QuerySet):
+    ...
+
+
+class TrainingType(models.Model):
+
+    label = models.CharField(
+        max_length=255,
+        verbose_name=_('Training label'),
+    )
+    slug = models.SlugField(
+        verbose_name=_('Training slug'),
+        primary_key=True,
+        unique=True,
+    )
+    action_name = models.CharField(
+        max_length=255,
+        verbose_name=_('Action name'),
+        help_text=_('Training action name (step, repeat, etc.)'),
+    )
+
+    objects = TrainingTypeQuerySet.as_manager()
+
+    def __str__(self):
+        return self.label
+
+    class Meta:
+        ordering = [
+            'slug',
+        ]
+
+
+class TrainingQuerySet(models.QuerySet):
+    ...
+
+
 class Training(models.Model):
-    LEN_STEP_METERS: float
 
     profile = models.ForeignKey(
         Profile,
         on_delete=models.CASCADE,
-        related_name='profile',
+        related_name='trainings',
     )
 
-    action = models.IntegerField(
+    training_type = models.ForeignKey(
+        TrainingType,
+        on_delete=models.CASCADE,
+        related_name='trainings',
+    )
+
+    training_units = models.IntegerField(
         validators=[
             MinValueValidator(0),
         ],
@@ -49,13 +104,16 @@ class Training(models.Model):
         verbose_name=_('Finished At'),
     )
 
+    objects = TrainingQuerySet.as_manager()
+
     @property
     def duration_hours(self) -> float:
-        return (self.finished_at - self.started_at).seconds / 3_600
+        return (self.finished_at - self.started_at).seconds / SEC_IN_HOUR
 
     @property
     def distance_km(self) -> float:
-        return self.action * self.LEN_STEP_METERS / M_IN_KM
+        """Dummy implementation to always have value."""
+        return 14.5
 
     @property
     def mean_speed(self) -> float:
@@ -63,36 +121,14 @@ class Training(models.Model):
 
     @property
     def calories_spent(self) -> float:
-        raise NotImplementedError
+        """Dummy implementation to always have value."""
+        return 250.0
 
     def __str__(self):
-        return f'{self.__class__.__name__}'
+        return f'{self.training_type}: {self.training_units} {self.training_type.action_name}(s)'
 
     class Meta:
-        abstract = True
         ordering = [
             '-finished_at',
             '-started_at',
         ]
-
-
-class Running(Training):
-    ...
-    LEN_STEP_METERS: float = 0.65
-    CALORIES_MEAN_SPEED_MULTIPLIER: float = 18
-    CALORIES_MEAN_SPEED_SHIFT: float = 20
-
-    @property
-    def calories_spent(self) -> float:
-        calories: float = (
-            self.CALORIES_MEAN_SPEED_MULTIPLIER
-            * self.mean_speed
-            - self.CALORIES_MEAN_SPEED_SHIFT
-        )
-
-        cal_per_minute: float = (
-            calories
-            * self.profile.weight_kg
-            / M_IN_KM
-        )
-        return cal_per_minute * self.duration_hours * MIN_IN_H
