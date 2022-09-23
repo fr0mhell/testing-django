@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Exists, OuterRef
 from django.core.validators import MinValueValidator
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +27,16 @@ class ProfileQuerySet(models.QuerySet):
                 filter=Q(trainings__training_type_id=slugify(TrainingTypes.PUSH_UPS)),
             ),
         )
+
+    def has_training_at(self, date):
+        sub_query = Training.objects.filter(
+            profile=OuterRef('pk'),
+            started_at__year=date.year,
+            started_at__month=date.month,
+            started_at__day=date.day,
+        )
+
+        return self.annotate(_has_traning=Exists(sub_query))
 
 
 class Profile(models.Model):
