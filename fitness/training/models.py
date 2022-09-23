@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Q, Count, Exists, OuterRef
+from django.db.models import Q, Count, Exists, OuterRef, ExpressionWrapper, F
 from django.core.validators import MinValueValidator
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -117,7 +117,14 @@ class TrainingType(models.Model):
 
 
 class TrainingQuerySet(models.QuerySet):
-    ...
+
+    def with_duration(self):
+        return self.annotate(
+            _duration=ExpressionWrapper(
+                (F('finished_at') - F('started_at')),
+                output_field=models.DurationField(),
+            )
+        )
 
 
 class Training(models.Model):
@@ -151,22 +158,10 @@ class Training(models.Model):
     objects = TrainingQuerySet.as_manager()
 
     @property
-    def duration_hours(self) -> float:
-        return (self.finished_at - self.started_at).seconds / SEC_IN_HOUR
-
-    @property
-    def distance_km(self) -> float:
-        """Dummy implementation to always have value."""
-        return 14.5
-
-    @property
-    def mean_speed(self) -> float:
-        return self.distance_km / self.duration_hours
-
-    @property
-    def calories_spent(self) -> float:
-        """Dummy implementation to always have value."""
-        return 250.0
+    def duration(self) -> float:
+        if hasattr(self, '_duration'):
+            return self._duration
+        return self.finished_at - self.started_at
 
     def __str__(self):
         return f'{self.training_type}: {self.training_units} {self.training_type.action_name}(s)'

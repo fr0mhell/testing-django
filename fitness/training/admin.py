@@ -39,8 +39,9 @@ class TrainingAdmin(admin.ModelAdmin):
         'training_type',
         'finished_at',
         'started_at',
-        'duration_hours',
-        'distance_km',
-        'mean_speed',
-        'calories_spent',
+        'duration',
     )
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.with_duration()
