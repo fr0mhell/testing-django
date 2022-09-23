@@ -25,7 +25,11 @@ Django examples for Yandex Praktikum webinars.
 
 ## Вебинар 4: Django ORM и формы
 
-Запускаем Django Shell в Jupyter:
+* [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/) - показывает запросы к БД при обращении к Джанго-приложению.
+* [django-extensions](https://django-extensions.readthedocs.io/en/latest/#:~:text=Django%20Extensions%20is%20a%20collection,admin%20extensions%20and%20much%20more.) - расширенные команды для Django, и много чего еще.
+В том числе "Джанго-консоль на стероидах" `shell_plus`
+
+Запускаем Django Shell-Plus в Jupyter:
 
 ```shell
 python manage.py shell_plus --notebook
