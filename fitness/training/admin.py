@@ -39,9 +39,12 @@ class TrainingAdmin(admin.ModelAdmin):
         'training_type',
         'finished_at',
         'started_at',
-        'duration',
+        # 'duration',
     )
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        return qs.with_duration()
+        return models.Training.objects.all()
+
+    # def get_queryset(self, request):
+    #     qs = super().get_queryset(request)
+    #     return qs.with_duration()

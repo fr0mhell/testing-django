@@ -14,6 +14,9 @@
         <div class="card-body">
           <form action="{% if is_edit %} {% url 'trainings:edit-training' training_id %} {% else %} {% url 'trainings:create-training' %}{% endif %}"method="post">
             {% csrf_token %}
+
+            {{ form.errors }}
+
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">
               {% if is_edit %} Сохранить {% else %} Добавить {% endif %}

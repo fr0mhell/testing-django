@@ -22,12 +22,10 @@
           {% if show_all %}
             <th scope="col">Profile</th>
           {% endif %}
+          <th scope="col">Training type</th>
           <th scope="col">Finished At</th>
           <th scope="col">Started At</th>
-          <th scope="col">Duration (h)</th>
-          <th scope="col">Distance (km)</th>
-          <th scope="col">Mean Speed (km/h)</th>
-          <th scope="col">Calories Spent</th>
+          <th scope="col">Training units</th>
           {% if not show_all %}
             <th scope="col"></th>
           {% endif %}
@@ -40,12 +38,10 @@
             {% if show_all %}
               <th scope="row"> {{ training.profile }}</th>
             {% endif %}
+            <td>{{ training.training_type }}</td>
             <td>{{ training.finished_at }}</td>
             <td>{{ training.started_at }}</td>
-            <td>{{ training.duration_hours|floatformat:3 }}</td>
-            <td>{{ training.distance_km|floatformat:3 }}</td>
-            <td>{{ training.mean_speed|floatformat:3 }}</td>
-            <td>{{ training.calories_spent|floatformat:3 }}</td>
+            <td>{{ training.training_units }}</td>
             {% if not show_all %}
               <td>
                 <a class="btn btn-primary" href="{% url 'trainings:edit-training' training.id %}" role="button">Редактировать</a>
