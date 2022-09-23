@@ -22,3 +22,9 @@ class TrainingForm(ModelForm):
             'started_at',
             'finished_at',
         ]
+
+    def full_clean(self):
+        return super().full_clean()
+
+    def save(self, commit=True):
+        return super().save(commit=commit)
