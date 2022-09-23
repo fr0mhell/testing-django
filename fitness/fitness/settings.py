@@ -17,7 +17,6 @@ import pygments.formatters
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -146,3 +145,7 @@ SHELL_PLUS_PRINT_SQL_TRUNCATE = None
 # Specify Pygments formatter and configuration options when printing sql queries to the console
 SHELL_PLUS_PYGMENTS_FORMATTER = pygments.formatters.TerminalFormatter
 SHELL_PLUS_PYGMENTS_FORMATTER_KWARGS = {}
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]

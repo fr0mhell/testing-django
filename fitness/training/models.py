@@ -1,7 +1,11 @@
-from django.db import models
-from django.core.validators import MinValueValidator
-from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
+from django.db import models
+from django.db.models import Q, Count
+from django.core.validators import MinValueValidator
+from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+
+from .constants import TrainingTypes
 
 User = get_user_model()
 
@@ -11,7 +15,18 @@ SEC_IN_HOUR = 3_600
 
 
 class ProfileQuerySet(models.QuerySet):
-    ...
+    def with_training_types_count(self):
+        return self.annotate(
+            _running_count=Count(
+                'trainings',
+                filter=Q(trainings__training_type_id=slugify(TrainingTypes.RUNNING)),
+            ),
+        ).annotate(
+            _push_ups_count=Count(
+                'trainings',
+                filter=Q(trainings__training_type_id=slugify(TrainingTypes.PUSH_UPS)),
+            ),
+        )
 
 
 class Profile(models.Model):
@@ -36,12 +51,25 @@ class Profile(models.Model):
 
     objects = ProfileQuerySet.as_manager()
 
+    @property
+    def running_count(self):
+        if hasattr(self, '_running_count'):
+            return self._running_count
+        return self.trainings.filter(training_type_id=slugify(TrainingTypes.RUNNING)).count()
+
+    @property
+    def push_ups_count(self):
+        if hasattr(self, '_push_ups_count'):
+            return self._push_ups_count
+        return self.trainings.filter(training_type_id=slugify(TrainingTypes.PUSH_UPS)).count()
+
     def __str__(self):
         return f'{self.user.first_name} {self.user.last_name} ({self.user.email})'
 
 
 class TrainingTypeQuerySet(models.QuerySet):
-    ...
+    def with_training_count(self):
+        return self.annotate(_training_count=Count('trainings'))
 
 
 class TrainingType(models.Model):
@@ -62,6 +90,12 @@ class TrainingType(models.Model):
     )
 
     objects = TrainingTypeQuerySet.as_manager()
+
+    @property
+    def training_count(self) -> int:
+        if hasattr(self, '_training_count'):
+            return self._training_count
+        return self.trainings.count()
 
     def __str__(self):
         return self.label
